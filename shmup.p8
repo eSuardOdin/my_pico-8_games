@@ -108,9 +108,16 @@ end
 function fire()
 	if(ship.heat<10)then
 		if(btnp(5)and ship.overheat==false) then
-			blt={}
-			blt.x=ship.x
-			blt.y=ship.y+3
+			blt={
+				x=ship.x,
+				y=ship.y+3,
+				hbox={
+				x1=1,
+				x2=7,
+				y1=1,
+				y2=7
+			}
+			}
 			sfx(0)
 			add(ship.blt,blt)
 			ship.heat+=2
@@ -140,6 +147,7 @@ function fly_blt()
 end
 
 --remove bullets from array
+--and foes if hit
 function rmv_blt()
 	if(#ship.blt!=0) then
 		for b in all(ship.blt)do
@@ -147,10 +155,18 @@ function rmv_blt()
 			if(b.y<-8)then
 				del(ship.blt,b)
 				ship.heat-=2
-				--remove overheat status
-				if(ship.overheat and #ship.blt==0)then
-					ship.overheat=false
+		
+			end
+			for e in all(foes)do
+				if(collision(b,e))then
+					del(ship.blt,b)
+					del(foes,e)
+					--ship.heat-=2
 				end
+			end
+			--remove overheat status
+			if(ship.overheat and #ship.blt==0)then
+				ship.overheat=false
 			end
 		end
 	end
@@ -161,6 +177,7 @@ function draw_blt()
 	if(#ship.blt!=0) then
 		for b in all(ship.blt)do
 			spr(16, b.x, b.y)
+			--rect(b.x,b.y,b.hbox.x2+b.x,b.hbox.y2+b.y)
 		end
 	end
 end
