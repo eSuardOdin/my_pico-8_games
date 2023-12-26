@@ -9,7 +9,7 @@ function _init()
 end
 
 function _update()
-	moveship()
+	manageship()
 	fire()
 	fly_blt()
 	rmv_blt()
@@ -17,6 +17,8 @@ function _update()
 	rmv_foes()
 	add_foes()
 	update_foes()
+	
+	check_foe_collision()
 end
 
 function _draw()
@@ -43,17 +45,31 @@ sp=2,--sprite
 blt={},
 heat=0,
 overheat=false,
-life=3
+life=3,
+hbox={
+	x1=1,
+	x2=6,
+	y1=0,
+	y2=7
+ },
+inv=0
 }
 end
 
 --draws ship
 function drawship()
-	spr(ship.sp,ship.x,ship.y)
+ if(ship.inv>0and ship.inv%3==0)then
+ 	
+ else
+		spr(ship.sp,ship.x,ship.y)
+	end
 end
 
 --handles ships ctrl
-function moveship()
+function manageship()
+ if(ship.inv>0)then
+  ship.inv-=1
+ end
 	ship.sp=2
 	
 	--diag=2*0.707
@@ -147,6 +163,7 @@ function show_heat()
 	if(ship.overheat)then
 		print("overheat!",89,17,8)
 	end
+	print(ship.inv,89,26,8)
 end
 
 --show life
@@ -169,7 +186,7 @@ end
 
 --add enemy
 function add_foes()
-	if(#foes<10)then
+	if(#foes<10)then --there to f nb
 		foe={
 			x=8+rnd(110),
 			y=-10-rnd(120),
@@ -216,16 +233,32 @@ function draw_foes()
 	if(#foes>0)then
 		for e in all(foes) do
 			spr(e.sprite,e.x,e.y)
-			rect(e.hbox.x1+e.x,
-			e.hbox.y1+e.y,
-			e.hbox.x2+e.x,
-			e.hbox.y2+e.y)
 		end
 	end
 end
 -->8
 --helper functions
+function collision(s,e)
+	if(s.hbox.y1+s.y<=e.hbox.y2+e.y
+	 and s.hbox.y2+s.y>=e.hbox.y1+e.y
+	 and s.hbox.x1+s.x<=e.hbox.x2+e.x
+	 and s.hbox.x2+s.x>=e.hbox.x1+e.x)then
+  return true
+ else
+  return false
+ end
+end
 
+function check_foe_collision()
+	for e in all(foes) do
+			if(collision(ship,e)
+			and ship.inv==0)then
+				ship.life-=1
+				ship.inv=60
+			end
+		end
+end
+	 
 __gfx__
 00000000003b3000003bb3000003b300000000000000000000000000000000000000000000000000000000000000000000000000000cc000000cc000005aa500
 0000000000bbb30003bbbb30003bbb000aa0099005500550000000000000000000000000000000000000000000000000000cc00000cccc0000cccc0008855880
