@@ -24,6 +24,7 @@ end
 function _draw()
 	cls(0)
 	drawship()
+	fire_flash()
 	draw_blt()
 	show_heat()
 	show_life()
@@ -36,6 +37,7 @@ end
 
 --init the ship
 function makeship()
+light=0
 ship={
 x=60,
 y=110,
@@ -112,8 +114,19 @@ function fire()
 			sfx(0)
 			add(ship.blt,blt)
 			ship.heat+=2
-			if(ship.heat==10)then ship.overheat=true end
-		end
+			light=6
+		 if(ship.heat==10)then 
+		 	ship.overheat=true 
+		 end
+		end		
+	end
+end
+
+--fire animate
+function fire_flash()
+if(light>0)then
+			circfill(ship.x+3,ship.y-5,light,7)
+			light-=1
 	end
 end
 
