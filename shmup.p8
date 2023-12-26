@@ -175,6 +175,12 @@ function add_foes()
 			y=-10-rnd(120),
 			spd=1+rnd(3),
 			sprite=11,
+			hbox={
+				x1=1,
+				x2=6,
+				y1=1,
+				y2=7
+			}
 		}
 		add(foes,foe)
 	end
@@ -210,9 +216,16 @@ function draw_foes()
 	if(#foes>0)then
 		for e in all(foes) do
 			spr(e.sprite,e.x,e.y)
+			rect(e.hbox.x1+e.x,
+			e.hbox.y1+e.y,
+			e.hbox.x2+e.x,
+			e.hbox.y2+e.y)
 		end
 	end
 end
+-->8
+--helper functions
+
 __gfx__
 00000000003b3000003bb3000003b300000000000000000000000000000000000000000000000000000000000000000000000000000cc000000cc000005aa500
 0000000000bbb30003bbbb30003bbb000aa0099005500550000000000000000000000000000000000000000000000000000cc00000cccc0000cccc0008855880
