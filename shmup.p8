@@ -24,6 +24,7 @@ function _draw()
 	drawship()
 	draw_blt()
 	show_heat()
+	show_life()
 	
 	draw_foes()
 end
@@ -41,7 +42,8 @@ sy=0,
 sp=2,--sprite
 blt={},
 heat=0,
-overheat=false
+overheat=false,
+life=3
 }
 end
 
@@ -57,23 +59,6 @@ function moveship()
 	--diag=2*0.707
 	ship.sx=0
 	ship.sy=0
-	--if diagonal
-	--[[if(btn(0)and btn(2))then
-		ship.sx-=diag
-		ship.sy-=diag
-		ship.sp=1
-	elseif(btn(0)and btn(3))then
-		ship.sx-=diag
-		ship.sy+=diag
-		ship.sp=1
-	elseif(btn(1) and btn(2))then
-		ship.sx+=diag
-		ship.sy-=diag
-		ship.sp=3
-	elseif(btn(1)and btn(3))then
-		ship.sx+=diag
-		ship.sy+=diag
-		ship.sp=3]]
 	--if mono direction
 	if(btn(0))then
 		ship.sx-=2
@@ -153,15 +138,26 @@ end
 
 --show heat bar
 function show_heat()
-	rect(99,2,111,5,9)
+	rect(106,10,118,13,9)
 	if(not ship.overheat)then
-		lenght=100+ship.heat
-		rectfill(100,3,100+ship.heat,4,8)
+		rectfill(107,11,107+ship.heat,12,8)
 	else
-		rectfill(100,3,110,4,8)
+		rectfill(107,11,117,12,8)
 	end
 	if(ship.overheat)then
-		print("overheat!",89,10,8)
+		print("overheat!",89,17,8)
+	end
+end
+
+--show life
+function show_life()
+	n=ship.life
+	for i=1, 3do
+		if(ship.life>=i)then
+		 spr(4,90+(9*i),1)
+		else
+			spr(5,90+(9*i),1)
+		end
 	end
 end
 	
