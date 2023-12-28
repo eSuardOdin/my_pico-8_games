@@ -7,11 +7,14 @@ end
 
 function _update()
 	mv_player()
+	update_foe()
+	update_bullets()
 end
 
 function _draw()
 	cls(6)
 	draw_entities()
+	draw_bullets()
 end
 
 -->8
@@ -20,7 +23,7 @@ function make_entities()
 	 x=61,
 	 y=61,
 	 sprite=2,
-	 rate=120,
+	 rate=30,
 	 bullet={
 	 	
 	 }
@@ -41,6 +44,12 @@ function draw_entities()
 	spr(player.sprite,
 	 player.x,
 	 player.y)
+	 
+	print(player.x,1,1,8)
+	print(player.y,1,8,8)
+	print(atan2(player.x,
+	            player.y),
+	            1,16,8)
 end
 
 function mv_player()
@@ -65,14 +74,45 @@ end
 function update_foe()
 	if(foe.rate==0)then
 		fire()
-		rate=120
+		foe.rate=30
 	else
-		rate-=1
+		foe.rate-=1
 	end
 end
 
 function fire()
+	dirx=player.x-foe.x
+	diry=player.y-foe.y
+	b={
+		x=foe.x,
+		y=foe.y,
+		spd=4,
+		--these are to change 
+		--depending on player pos
+		ang=atan2(dirx,diry),
+	}
+	add(foe.bullet,b)
+end
 
+function update_bullets()
+	if(#foe.bullet!=0)then
+		for b in all(foe.bullet)do
+			b.x+=cos(b.ang)*b.spd
+			b.y+=sin(b.ang)*b.spd
+			if(b.x<-8or b.x>136or
+				b.y<-8or b.y>136)then
+				del(foe.bullet,b)
+			end
+		end
+	end
+end
+
+function draw_bullets()
+	if(#foe.bullet!=0)then
+		for b in all(foe.bullet)do
+			spr(3,b.x,b.y)
+		end
+	end
 end
 __gfx__
 00000000cccccccc8888888800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

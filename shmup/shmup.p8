@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
---my shmup
+--shoot my game up
 --by esuard
 function _init()
 	make_bg()
