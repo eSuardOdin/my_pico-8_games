@@ -26,7 +26,7 @@ function _update()
 end
 
 function _draw()
-	cls(0)
+	cls(1)
 	draw_stars()
 	draw_ship()
 	fire_flash()
@@ -37,6 +37,8 @@ function _draw()
 	show_life()
 	
 	draw_foes()
+	
+	print(#blts,2,2,5)
 end
 
 -->8
@@ -226,6 +228,7 @@ end
 --enemy functions
 function make_foes()
 	foes={}
+	blts={}
 end
 
 --add enemy
@@ -236,8 +239,7 @@ function add_foes()
 			y=-10-rnd(120),
 			spd=1+rnd(0.8),
 			sprite=15,
-			blts={},
-			r=rnd(12,30),
+			r=50,
 			init_r=0,
 			hbox={
 				x1=1,
@@ -263,7 +265,7 @@ function update_foes()
 				b={
 				 x=e.x+4,
 				 y=e.y+4,
-				 v=rnd(3)+1,
+				 v=1.5,
 				 ang=atan2(nx,ny),
 				 hbox={
 							x1=1,
@@ -273,7 +275,7 @@ function update_foes()
 						},
 					sp=17,
 				}
-				add(e.blts,b)
+				add(blts,b)
 				e.r=e.init_r
 			else
 			--stop()
@@ -288,12 +290,12 @@ end
 function update_blts()
 	if(#foes!=0)then
 		for f in all(foes)do
-			if(#f.blts!=0)then
-				for b in all(f.blts)do
+			if(#blts!=0)then
+				for b in all(blts)do
 					if(b.x<-8or b.x>136
 						  or b.y<-8 or b.y>136)
 					then
-					 del(f.blts,b)
+					 del(blts,b)
 					else
 					 b.x+=cos(b.ang)*b.v
 					 b.y+=sin(b.ang)*b.v
@@ -319,10 +321,9 @@ end
 function draw_foes()
 	if(#foes>0)then
 		for e in all(foes) do
-			print(e.r,1,e.y)
 			spr(e.sprite,e.x,e.y)
-			if(#e.blts!=0)then
-				for b in all(e.blts)do
+			if(#blts!=0)then
+				for b in all(blts)do
 					spr(b.sp,b.x,b.y)
 				end
 			end
@@ -346,23 +347,23 @@ end
 
 function check_foe_collision()
 	if(#foes!=0)then
-	for e in all(foes) do
+		for e in all(foes) do
 			if(collision(ship,e)
 			and ship.inv==0)then
 				ship.life-=1
 				ship.inv=60
 			end
-			--bullet col
-			if(e.blts!=0)then
-					for b in all(e.blts)do
-						if(collision(ship,b)
-						and ship.inv==0)then
-							ship.life-=1
-							ship.inv=60
-				end
-			end
 		end
 	end
+--bullet col
+	if(#blts!=0)then
+		for b in all(blts)do
+			if(collision(ship,b)
+				and ship.inv==0)then
+						ship.life-=1
+						ship.inv=60
+			end
+		end
 	end
 end
 
