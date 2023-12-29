@@ -8,37 +8,49 @@ function _init()
 	make_ship()
 	make_wpn()
 	make_foes()
+	
+	state="menu"
 end
 
 function _update()
-	update_stars()
-	manage_ship()
-	fire()
-	fly_blt()
-	rmv_blt()
+	if(state=="game")then
+		update_stars()
+		manage_ship()
+		fire()
+		fly_blt()
+		rmv_blt()
+		
+		rmv_foes()
+		add_foes()
+		update_foes()
+		update_blts()
+		
+		check_foe_collision()
 	
-	rmv_foes()
-	add_foes()
-	update_foes()
-	update_blts()
+	elseif(state=="gameover")then
 	
-	check_foe_collision()
+	else
+		menu()
+	end
 end
 
 function _draw()
-	cls(1)
-	draw_stars()
-	draw_ship()
-	fire_flash()
-	draw_blt()
-	animate_hits()
-	
-	show_load()
-	show_life()
-	
-	draw_foes()
-	
-	print(#blts,2,2,5)
+	cls(0)
+	if(state=="game")then
+		cls(1)
+		draw_stars()
+		draw_ship()
+		fire_flash()
+		draw_blt()
+		animate_hits()
+		
+		show_load()
+		show_life()
+		
+		draw_foes()
+	elseif(state=="menu")then
+		draw_menu()	
+	end
 end
 
 -->8
@@ -95,6 +107,10 @@ end
 
 --handles ships ctrl
 function manage_ship()
+
+	if(ship.life==0)then
+		state="gameover"
+	end
  if(ship.inv>0)then
   ship.inv-=1
  end
@@ -224,6 +240,16 @@ function show_life()
 	end
 end
 	
+function menu()
+	if(btn(❎))then
+		state="game"
+	end
+end
+
+function draw_menu()
+	print("push x button",
+	40,64,7)
+end
 -->8
 --enemy functions
 function make_foes()
