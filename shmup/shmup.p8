@@ -8,7 +8,7 @@ function _init()
 	make_ship()
 	make_wpn()
 	make_foes()
-	
+	make_game_over()
 	menu()
 end
 
@@ -28,7 +28,7 @@ function _update()
 		check_foe_collision()
 	
 	elseif(state=="gameover")then
-	
+		update_game_over()
 	else
 		update_menu()
 	end
@@ -48,6 +48,8 @@ function _draw()
 		draw_foes()
 	elseif(state=="menu")then
 		draw_menu()	
+	else
+		draw_game_over()
 	end
 end
 
@@ -148,6 +150,7 @@ function update_menu()
 	if(is_launch and
 	  game_screen==128)then
 	 state="game"
+	 game_screen=0
 	end
 end
 
@@ -163,10 +166,49 @@ function draw_menu()
 		cprint("push x button",
 						title_pos+8,7)
 	elseif(is_launch)then
-		game_screen+=1
+		game_screen+=4
 		for x=0,128do	
 			pset(x,game_screen,1)
+			pset(x,game_screen+1,1)
+			pset(x,game_screen+2,1)
+			pset(x,game_screen+3,1)
 		end
+	end
+end
+
+
+--game over
+
+function make_game_over()
+	score_pos=-20
+	is_score=false
+end
+
+function update_game_over()
+	
+	if(not (game_screen<128))then
+		is_score=true
+	end
+	
+end
+
+function draw_game_over()
+	if(is_score)then
+		cls(5)
+		
+		cprint("game over",score_pos,9)
+		cprint("your score:"..score,score_pos+8,9)
+		if(score_pos<50)then
+			score_pos+=1
+		end
+	else
+		for x=0,128do	
+			pset(x,game_screen,5)
+			pset(x,game_screen+1,5)
+			pset(x,game_screen+2,5)
+			pset(x,game_screen+3,5)
+		end
+		game_screen+=4
 	end
 end
 -->8
@@ -510,7 +552,15 @@ function draw_status()
 	print("score:"..score,2,2,9)
 end
 
-
+function draw_transition(gs)
+	gs+=4
+		for x=0,128do	
+			pset(x,gs,1)
+			pset(x,gs+1,1)
+			pset(x,gs+2,1)
+			pset(x,gs+3,1)
+		end
+end
 
 -->8
 --helper functions
