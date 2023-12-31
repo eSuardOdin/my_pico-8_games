@@ -43,8 +43,7 @@ function _draw()
 		draw_blt()
 		animate_hits()
 		
-		show_load()
-		show_life()
+		draw_status()
 		
 		draw_foes()
 	elseif(state=="menu")then
@@ -58,6 +57,7 @@ end
 
 --init the ship
 function make_ship()
+score=0
 --garbage variables for animation
 light=0
 hits={}
@@ -333,6 +333,17 @@ function fly_blt()
 	end
 end
 
+
+--add an hit to animate
+function add_hit(xpos,ypos)
+	hit={
+		x=xpos,
+		y=ypos,
+		state=0
+		}
+		add(hits,hit)
+end
+
 --remove bullets from array
 --and foes if hit
 function rmv_blt()
@@ -350,6 +361,8 @@ function rmv_blt()
 					add_hit(b.x+4,b.y)
 					del(ship.blt,b)
 					del(foes,e)
+					--add score
+					score+=25
 				end
 			end
 		end
@@ -393,15 +406,6 @@ end
 --draw functions
 
 
---add an hit to animate
-function add_hit(xpos,ypos)
-	hit={
-		x=xpos,
-		y=ypos,
-		state=0
-		}
-		add(hits,hit)
-end
 
 --animate all hits
 function animate_hits()
@@ -471,15 +475,9 @@ function draw_blt()
 	end
 end
 
---show load bar
-function show_load()
-	local pct = (ship.ld*10)/wpn.rate
-	rect(106,10,118,13,9)
-	rectfill(107,11,107+pct,12,8)
-end
-
 --show life
-function show_life()
+function draw_status()
+	--life
 	n=ship.life
 	for i=1, 3do
 		if(ship.life>=i)then
@@ -488,7 +486,17 @@ function show_life()
 			spr(5,90+(9*i),1)
 		end
 	end
+	
+	--loadbar
+	local pct = (ship.ld*10)/wpn.rate
+	rect(106,10,118,13,9)
+	rectfill(107,11,107+pct,12,8)
+	
+	--score
+	print("score:"..score,2,2,9)
 end
+
+
 
 -->8
 --helper functions
