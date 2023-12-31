@@ -9,7 +9,7 @@ function _init()
 	make_wpn()
 	make_foes()
 	
-	state="menu"
+	menu()
 end
 
 function _update()
@@ -30,12 +30,11 @@ function _update()
 	elseif(state=="gameover")then
 	
 	else
-		menu()
+		update_menu()
 	end
 end
 
 function _draw()
-	cls(0)
 	if(state=="game")then
 		cls(1)
 		draw_stars()
@@ -49,12 +48,13 @@ function _draw()
 		
 		draw_foes()
 	elseif(state=="menu")then
+		cls(5)
 		draw_menu()	
 	end
 end
 
 -->8
---functions
+--init functions
 
 --init the ship
 function make_ship()
@@ -96,6 +96,12 @@ function make_wpn()
 		}
 end
 
+
+function make_foes()
+	foes={}
+	blts={}
+end
+
 --draws ship
 function draw_ship()
  if(ship.inv>0and ship.inv%3==0)then
@@ -104,6 +110,54 @@ function draw_ship()
 		spr(ship.sp,ship.x,ship.y)
 	end
 end
+
+--fire animate
+function fire_flash()
+if(light>0)then
+			circfill(ship.x+3,ship.y-5,light,7)
+			light-=1
+	end
+end
+
+	
+
+--menu init updt and draw
+function menu()
+	title="shoot my game up"
+	title_pos=0
+	flick=0
+	state="menu"
+end
+
+function update_menu()
+	if(title_pos!=52)then
+		title_pos+=2
+	end
+	if(flick==10)then
+		flick=0
+	else
+		flick+=1
+	end
+	
+	if(btn(❎))then
+		state="game"
+	end
+end
+
+function draw_menu()
+	cprint("shoot my game up",
+						title_pos,8)
+	if(flick<8and title_pos==52)then
+		cprint("push x button",
+						title_pos+8,7)
+	end	
+--	print("push x button",
+--	40,64,7)
+
+end
+-->8
+--update functions
+
 	
 --handles ships ctrl
 function manage_ship()
@@ -172,90 +226,6 @@ function fire()
 	end
 end
 
---fire animate
-function fire_flash()
-if(light>0)then
-			circfill(ship.x+3,ship.y-5,light,7)
-			light-=1
-	end
-end
-
---handle bullet mvmt
-function fly_blt()
-	if(#ship.blt!=0) then
-		for b in all(ship.blt)do
-			b.y-=wpn.spd
-		end
-	end
-end
-
---remove bullets from array
---and foes if hit
-function rmv_blt()
-	if(#ship.blt!=0) then
-		for b in all(ship.blt)do
-			--remove offscreen blt
-			if(b.y<-8)then
-				del(ship.blt,b)
-			end
-			
-			--check hit collision
-			for e in all(foes)do
-				if(collision(b,e))then
-				 sfx(1)
-					add_hit(b.x+4,b.y)
-					del(ship.blt,b)
-					del(foes,e)
-				end
-			end
-		end
-	end
-end
-
---draw bullets
-function draw_blt()
-	if(#ship.blt!=0) then
-		for b in all(ship.blt)do
-			spr(16, b.x, b.y)
-		end
-	end
-end
-
---show load bar
-function show_load()
-	local pct = (ship.ld*10)/wpn.rate
-	rect(106,10,118,13,9)
-	rectfill(107,11,107+pct,12,8)
-end
-
---show life
-function show_life()
-	n=ship.life
-	for i=1, 3do
-		if(ship.life>=i)then
-		 spr(4,90+(9*i),1)
-		else
-			spr(5,90+(9*i),1)
-		end
-	end
-end
-	
-function menu()
-	if(btn(❎))then
-		state="game"
-	end
-end
-
-function draw_menu()
-	print("push x button",
-	40,64,7)
-end
--->8
---enemy functions
-function make_foes()
-	foes={}
-	blts={}
-end
 
 --add enemy
 function add_foes()
@@ -343,23 +313,50 @@ function rmv_foes()
 	end
 end
 
---draw enemies
-function draw_foes()
-	if(#foes>0)then
-		for e in all(foes) do
-			spr(e.sprite,e.x,e.y)
-			if(#blts!=0)then
-				for b in all(blts)do
-					spr(b.sp,b.x,b.y)
+--updt star pos
+function update_stars()
+	for s in all(bg)do
+		s.y+=0.8
+		if(s.y>128)then del(bg,s)end
+	end
+	for i=#bg,20do
+		add(bg,gen_star(true))
+	end
+end
+
+--handle bullet mvmt
+function fly_blt()
+	if(#ship.blt!=0) then
+		for b in all(ship.blt)do
+			b.y-=wpn.spd
+		end
+	end
+end
+
+--remove bullets from array
+--and foes if hit
+function rmv_blt()
+	if(#ship.blt!=0) then
+		for b in all(ship.blt)do
+			--remove offscreen blt
+			if(b.y<-8)then
+				del(ship.blt,b)
+			end
+			
+			--check hit collision
+			for e in all(foes)do
+				if(collision(b,e))then
+				 sfx(1)
+					add_hit(b.x+4,b.y)
+					del(ship.blt,b)
+					del(foes,e)
 				end
 			end
 		end
 	end
 end
 
-
--->8
---helper functions
+--detect collision
 function collision(s,e)
 	if(s.hbox.y1+s.y<=e.hbox.y2+e.y
 	 and s.hbox.y2+s.y>=e.hbox.y1+e.y
@@ -392,6 +389,9 @@ function check_foe_collision()
 		end
 	end
 end
+-->8
+--draw functions
+
 
 --add an hit to animate
 function add_hit(xpos,ypos)
@@ -439,21 +439,62 @@ function make_bg()
 	end
 end
 
---updt star pos
-function update_stars()
-	for s in all(bg)do
-		s.y+=0.8
-		if(s.y>128)then del(bg,s)end
-	end
-	for i=#bg,20do
-		add(bg,gen_star(true))
-	end
-end
+
 
 function draw_stars()
 	for s in all(bg)do
 		circfill(s.x,s.y,0,7)
 	end
+end
+
+--draw enemies
+function draw_foes()
+	if(#foes>0)then
+		for e in all(foes) do
+			spr(e.sprite,e.x,e.y)
+			if(#blts!=0)then
+				for b in all(blts)do
+					spr(b.sp,b.x,b.y)
+				end
+			end
+		end
+	end
+end
+
+
+--draw bullets
+function draw_blt()
+	if(#ship.blt!=0) then
+		for b in all(ship.blt)do
+			spr(16, b.x, b.y)
+		end
+	end
+end
+
+--show load bar
+function show_load()
+	local pct = (ship.ld*10)/wpn.rate
+	rect(106,10,118,13,9)
+	rectfill(107,11,107+pct,12,8)
+end
+
+--show life
+function show_life()
+	n=ship.life
+	for i=1, 3do
+		if(ship.life>=i)then
+		 spr(4,90+(9*i),1)
+		else
+			spr(5,90+(9*i),1)
+		end
+	end
+end
+
+-->8
+--helper functions
+function cprint(t,y,c)
+	x=64-(#t*2)
+	print(t,x,y,c)
 end
 __gfx__
 00000000003b3000003bb3000003b300000000000000000000000000000000000000000000000000000000000000000000000000000cc000000cc000005aa500
