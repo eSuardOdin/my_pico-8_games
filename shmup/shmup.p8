@@ -104,7 +104,7 @@ function draw_ship()
 		spr(ship.sp,ship.x,ship.y)
 	end
 end
-
+	
 --handles ships ctrl
 function manage_ship()
 
