@@ -44,11 +44,7 @@ end
 --update game--
 function upd_game()
 	upd_player()
-	
-	--[[if btnp(❎)then
-		_upd=upd_over
-		_drw=drw_over
-	end--]]
+	upd_stage()
 end
 
 --update player state and actions--
@@ -138,7 +134,14 @@ function upd_player()
 	--handle touching bullets
 end
 
-
+function upd_stage()
+	if time_left==0then
+		stage+=1
+		time_left=3600
+	else
+		time_left-=1
+	end
+end
 
 
 
@@ -169,8 +172,10 @@ end
 function drw_game()
 	cls(1)
 	drw_player()
+	drw_gui()
 end
 
+--drawing player
 function drw_player()
 	--show player
 	if not(p_inv>0and p_inv%3==0)then
@@ -189,6 +194,29 @@ function drw_player()
 	end
 end
 
+--drawing gui
+function drw_gui()
+	--life
+	for i=1, 3do
+		if(p_pv>=i)then
+		 spr(4,90+(9*i),1)
+		else
+			spr(5,90+(9*i),1)
+		end
+	end
+	
+	--loadbar
+	local pct = (p_load*10)/wpn.rate
+	rect(106,10,118,13,9)
+	rectfill(107,11,107+pct,12,8)
+	
+	--stage
+	print("stage "..stage,2,2,7)
+ print(flr(time_left/30),60,2,7)	
+	--score
+	print("score:"..p_score,2,10,9)
+end
+
 
 --draw gameover--
 function drw_over()
@@ -205,7 +233,7 @@ end
 function set_game()
 --global--
 	stage=0
-	time_left=5400 --3 min
+	time_left=3600--120sec *30 frames
 
 --player variables--
 	p_x=60
