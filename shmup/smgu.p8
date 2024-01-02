@@ -156,7 +156,7 @@ end
 function upd_enemies()
 	local e_nb
 	if (stage==0)then
-	 e_nb=3
+	 e_nb=120
 	elseif(stage==1)then
 	 e_nb=4
 	elseif(stage==2)then
@@ -167,16 +167,16 @@ function upd_enemies()
 		e_nb=8
 	end
 	--check table length
+	
+	for i=#e_table, e_nb do
+		add(e_table,spawn_e())
+	end
 	if(#e_table!=0)then
-		for i=#e_table, e_nb do
-			add(e_table,spawn_e())
-		end
 		for e in all(e_table)do
-			e.x+=e.spd
+			e.y+=e.spd
 		end
 	end
 	
-	--
 end
 
 
@@ -187,35 +187,44 @@ function spawn_e()
 	local i_rate
 	local i_spd
 	local i_sprite
-	
+	_e = {
+		x=8+rnd(110),
+		y=-10-rnd(120),
+		hbox={
+				x1=1,
+				x2=7,
+				y1=1,
+				y2=7
+			},
+		rate=0,
+		init_rate=0,
+		spd=0,
+		sprite=0,
+	}
 	if(e_type==0)then--rookie
 		i_rate=150
-		i_spd=1.5
+		i_spd=0.5
 		i_sprite=47
 	elseif(e_type==1)then--med
 		i_rate=120
-		i_spd=1.8
+		i_spd=0.8
 		i_sprite=31
 	elseif(e_type==2)then--med+
 		i_rate=105
-		i_spd=2
+		i_spd=1
 		i_sprite=15
 --	else	--hard
 	end
 	
 	--all enemies--
-	e_stats.x=8+rnd(110)
-	e_stats.y=-10-rnd(120)
-	e_stats.hbox.x1=1
-	e_stats.hbox.x2=7
-	e_stats.hbox.y1=1
-	e_stats.hbox.y2=7
-	e_stats.rate=i_rate
-	e_stats.spd=i_spd
-	e_stats.sprite=i_sprite
+	
+	_e.rate=i_rate
+	_e.init_rate=i_rate
+	_e.spd=i_spd
+	_e.sprite=i_sprite
 	
 	--todo : atk as a pointer to function
-	return e_stats
+	return _e
 end
 
 
@@ -244,6 +253,7 @@ end
 --draw game--
 function drw_game()
 	cls(1)
+	--print(#e_table,64,64,7)
 	drw_player()
 	drw_gui()
 	drw_enemies()
@@ -298,8 +308,11 @@ end
 --draw enemies--
 function drw_enemies()
 	if(#e_table!=0)then
+		--local _n = 0
 		for e in all(e_table)do
 			spr(e.sprite,e.x,e.y)
+			--print(e.x.." "..e.y,64,64+_n)
+			--_n+=8
 		end
 	end
 end
