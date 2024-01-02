@@ -131,15 +131,20 @@ function upd_player()
 		end
 	end
 	
+	--*todo*--
 	--handle touching bullets
+	--*todo*--
 end
 
 function upd_stage()
 	if time_left==0then
 		stage+=1
-		time_left=3600
+		time_left=90--3600
 	else
 		time_left-=1
+	end
+	if stage==5then
+		_upd=upd_over
 	end
 end
 
@@ -149,7 +154,8 @@ end
 
 --update game over--
 function upd_over()
-		if btnp(❎)then
+	_drw=drw_over
+	if btnp(❎)then
 		_upd=upd_menu
 		_drw=drw_menu
 	end
@@ -233,8 +239,8 @@ end
 function set_game()
 --global--
 	stage=0
-	time_left=3600--120sec *30 frames
-
+	time_left=90--120sec *30 frames
+--3600
 --player variables--
 	p_x=60
 	p_sx=0
