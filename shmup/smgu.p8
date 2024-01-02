@@ -45,6 +45,7 @@ end
 function upd_game()
 	upd_player()
 	upd_stage()
+	upd_enemies()
 end
 
 --update player state and actions--
@@ -154,27 +155,67 @@ end
 --
 function upd_enemies()
 	local e_nb
-	if (stage==0) e_nb=3
-	elseif(stage==1) e_nb=4
-	elseif(stage==2) e_nb=5
-	elseif(stage==3) e_nb=6
-	else e_nb=8
-	
+	if (stage==0)then
+	 e_nb=3
+	elseif(stage==1)then
+	 e_nb=4
+	elseif(stage==2)then
+	 e_nb=5
+	elseif(stage==3)then
+		e_nb=6
+	else 
+		e_nb=8
+	end
 	--check table length
 	if(#e_table!=0)then
 		for i=#e_table, e_nb do
-			spawn_e()
+			add(e_table,spawn_e())
+		end
+		for e in all(e_table)do
+			e.x+=e.spd
 		end
 	end
+	
+	--
 end
 
 
 function spawn_e()
+	
+	local e_type=flr(rnd(3))
+	
+	local i_rate
+	local i_spd
+	local i_sprite
+	
+	if(e_type==0)then--rookie
+		i_rate=150
+		i_spd=1.5
+		i_sprite=47
+	elseif(e_type==1)then--med
+		i_rate=120
+		i_spd=1.8
+		i_sprite=31
+	elseif(e_type==2)then--med+
+		i_rate=105
+		i_spd=2
+		i_sprite=15
+--	else	--hard
+	end
+	
 	--all enemies--
 	e_stats.x=8+rnd(110)
 	e_stats.y=-10-rnd(120)
+	e_stats.hbox.x1=1
+	e_stats.hbox.x2=7
+	e_stats.hbox.y1=1
+	e_stats.hbox.y2=7
+	e_stats.rate=i_rate
+	e_stats.spd=i_spd
+	e_stats.sprite=i_sprite
 	
-	
+	--todo : atk as a pointer to function
+	return e_stats
 end
 
 
@@ -205,6 +246,7 @@ function drw_game()
 	cls(1)
 	drw_player()
 	drw_gui()
+	drw_enemies()
 end
 
 --drawing player
@@ -250,6 +292,16 @@ function drw_gui()
  print(flr(time_left/30),60,2,7)	
 	--score
 	print("score:"..p_score,2,10,9)
+end
+
+
+--draw enemies--
+function drw_enemies()
+	if(#e_table!=0)then
+		for e in all(e_table)do
+			spr(e.sprite,e.x,e.y)
+		end
+	end
 end
 
 
