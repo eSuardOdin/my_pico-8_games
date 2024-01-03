@@ -137,8 +137,22 @@ function upd_player()
 	--*todo*--
 	--handle touching bullets
 	--*todo*--
+	if#e_table!=0and#p_blt!=0 then
+		for e in all(e_table)do
+		for b in all(p_blt)do
+			--to do--
+			--handle e_pv--
+			_hit=collide(e,b)
+			if _hit then
+				del(e_table,e)
+				del(p_blt,b)
+			end
+		end
+		end
+	end
 end
 
+--update stage--
 function upd_stage()
 	if time_left==0then
 		stage+=1
@@ -152,11 +166,11 @@ function upd_stage()
 	end
 end
 
---
+--update enemies--
 function upd_enemies()
 	local e_nb
 	if (stage==0)then
-	 e_nb=120
+	 e_nb=3
 	elseif(stage==1)then
 	 e_nb=4
 	elseif(stage==2)then
@@ -166,24 +180,27 @@ function upd_enemies()
 	else 
 		e_nb=8
 	end
-	--check table length
-	
+
+	--adding enemies	
 	for i=#e_table, e_nb do
 		add(e_table,spawn_e())
 	end
+	--moving enemies
 	if(#e_table!=0)then
 		for e in all(e_table)do
 			e.y+=e.spd
+			--deleting oob enemies
+			if e.y > 134 then
+				del(e_table,e)
+			end
 		end
 	end
-	
 end
 
-
+--return new enemy--
 function spawn_e()
 	
 	local e_type=flr(rnd(3))
-	
 	local i_rate
 	local i_spd
 	local i_sprite
@@ -273,7 +290,12 @@ function drw_player()
 	--show bullets
 	if#p_blt!=0then
 		for b in all(p_blt)do
+		 --stop()
 			spr(16, b.x, b.y)
+			print(b.x.." "..b.y,b.x+8,b.y,8)
+			print(b.hbox.x2+b.x.." "
+			..b.hbox.y2+b.y,b.x+8,b.y+8,8)
+			drw_hb(b)
 		end
 	end
 end
@@ -313,6 +335,7 @@ function drw_enemies()
 			spr(e.sprite,e.x,e.y)
 			--print(e.x.." "..e.y,64,64+_n)
 			--_n+=8
+			drw_hb(e)
 		end
 	end
 end
@@ -368,7 +391,10 @@ function set_game()
 	e_table={}
 	e_blt={}
 	
---enemy types--
+	
+--debug pointer to func--
+	_drw_dbg=nil
+--[[enemy types--
 	e_stats={
 		x=0,
 		y=0,
@@ -382,13 +408,39 @@ function set_game()
 			y1=0,
 			y2=0,
 		}
-	}
+	}--]]
 end
 -->8
 --helper functions
+
+--print to center--
 function cprint(_t,_y,c)
-	--x=64-(#t*2)
 	print(_t,64-#_t*2,_y,c)
+end
+
+--check if 2 hitboxes collide--
+function collide(a,b)
+	if(a.hbox.y1+a.y<=b.hbox.y2+b.y
+	 and a.hbox.y2+a.y>=b.hbox.y1+b.y
+	 and a.hbox.x1+a.x<=b.hbox.x2+b.x
+	 and a.hbox.x2+a.x>=b.hbox.x1+b.x)then
+  return true
+ else
+  return false
+ end
+end
+
+function drw_hb(e)
+	rect(e.x,
+	e.y,
+	e.hbox.x2+e.x,
+	e.hbox.y2+e.y,12)
+end
+
+
+
+function print_dbg(txt)
+	print(txt,15,115,15)
 end
 __gfx__
 00000000003b3000003bb3000003b300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000088888888
