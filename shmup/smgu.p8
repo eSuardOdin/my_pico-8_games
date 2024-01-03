@@ -104,6 +104,7 @@ function upd_player()
 		blt={
 			x=p_x,
 			y=p_y+3,
+			dmg=wpn.dmg,
 			hbox={
 			x1=1,
 			x2=7,
@@ -142,9 +143,13 @@ function upd_player()
 		for b in all(p_blt)do
 			--to do--
 			--handle e_pv--
-			_hit=collide(e,b)
-			if _hit then
-				del(e_table,e)
+			--_hit=collide(e,b)
+			if collide(e,b) then
+				--add hits todo--
+				e.pv-=b.dmg
+				if(e.pv==0)then
+					del(e_table,e)
+				end
 				del(p_blt,b)
 			end
 		end
@@ -204,6 +209,7 @@ function spawn_e()
 	local i_rate
 	local i_spd
 	local i_sprite
+	local i_pv
 	_e = {
 		x=8+rnd(110),
 		y=-10-rnd(120),
@@ -217,19 +223,23 @@ function spawn_e()
 		init_rate=0,
 		spd=0,
 		sprite=0,
+		pv=0,
 	}
 	if(e_type==0)then--rookie
 		i_rate=150
 		i_spd=0.5
 		i_sprite=47
+		i_pv=2
 	elseif(e_type==1)then--med
 		i_rate=120
 		i_spd=0.8
 		i_sprite=31
+		i_pv=1
 	elseif(e_type==2)then--med+
 		i_rate=105
 		i_spd=1
 		i_sprite=15
+		i_pv=3
 --	else	--hard
 	end
 	
@@ -239,7 +249,7 @@ function spawn_e()
 	_e.init_rate=i_rate
 	_e.spd=i_spd
 	_e.sprite=i_sprite
-	
+	_e.pv=i_pv
 	--todo : atk as a pointer to function
 	return _e
 end
@@ -295,7 +305,7 @@ function drw_player()
 			print(b.x.." "..b.y,b.x+8,b.y,8)
 			print(b.hbox.x2+b.x.." "
 			..b.hbox.y2+b.y,b.x+8,b.y+8,8)
-			drw_hb(b)
+			--drw_hb(b)
 		end
 	end
 end
@@ -335,7 +345,7 @@ function drw_enemies()
 			spr(e.sprite,e.x,e.y)
 			--print(e.x.." "..e.y,64,64+_n)
 			--_n+=8
-			drw_hb(e)
+			--drw_hb(e)
 		end
 	end
 end
@@ -391,6 +401,10 @@ function set_game()
 	e_table={}
 	e_blt={}
 	
+--global--
+	hits={} --x,y,pixs{x,y},anim_value
+	
+	
 	
 --debug pointer to func--
 	_drw_dbg=nil
@@ -436,8 +450,6 @@ function drw_hb(e)
 	e.hbox.x2+e.x,
 	e.hbox.y2+e.y,12)
 end
-
-
 
 function print_dbg(txt)
 	print(txt,15,115,15)
