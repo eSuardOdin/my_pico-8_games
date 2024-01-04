@@ -46,6 +46,7 @@ function upd_game()
 	upd_player()
 	upd_stage()
 	upd_enemies()
+	upd_stars()
 end
 
 --update player state and actions--
@@ -254,6 +255,24 @@ function spawn_e()
 	return _e
 end
 
+--update stars--
+function upd_stars()
+	if#stars<150then
+		gen_stars(true)
+	end
+	if#stars!=0then
+	--move or del
+		for st in all(stars)do
+			st.y+=st.spd
+			if(st.y>129)then
+				del(stars,st)
+			end
+		end
+	end
+end
+
+
+
 
 --update game over--
 function upd_over()
@@ -279,8 +298,9 @@ end
 
 --draw game--
 function drw_game()
-	cls(1)
+	cls(0)
 	--print(#e_table,64,64,7)
+	drw_stars()
 	drw_player()
 	drw_gui()
 	drw_enemies()
@@ -351,6 +371,15 @@ function drw_enemies()
 end
 
 
+--draw stars--
+function drw_stars()
+	if(#stars!=0)then
+		for st in all(stars)do
+			circ(st.x,st.y,0,st.col)
+		end
+	end
+end
+
 --draw gameover--
 function drw_over()
 	cls(2)
@@ -366,6 +395,10 @@ end
 function set_game()
 --global--
 	stage=0
+	stars={}
+	while#stars<80do
+		gen_stars(false)
+	end
 	--time_left=90--120sec *30 frames
  time_left=3600
 --player variables--
@@ -401,28 +434,8 @@ function set_game()
 	e_table={}
 	e_blt={}
 	
---global--
-	hits={} --x,y,pixs{x,y},anim_value
-	
-	
-	
 --debug pointer to func--
 	_drw_dbg=nil
---[[enemy types--
-	e_stats={
-		x=0,
-		y=0,
-		spd=0,
-		sprite=0,
-		rate=0,
-		init_rate=0,
-		hbox={
-			x1=0,
-			x2=0,
-			y1=0,
-			y2=0,
-		}
-	}--]]
 end
 -->8
 --helper functions
@@ -453,6 +466,35 @@ end
 
 function print_dbg(txt)
 	print(txt,15,115,15)
+end
+
+function gen_stars(out)
+	local _type = rnd(10)
+	if out then
+		_y=0-rnd(128)
+	else
+		_y=rnd(128)
+	end
+	_s=
+	{
+		y=_y,
+		x=rnd(128),
+		spd=0,
+		col=0,
+	}
+	if _type>5then
+		_spd=2
+		_col=7
+	elseif _type>3then
+		_spd=0.6
+		_col=1
+	else
+		_spd=0.3
+		_col=5
+	end
+	_s.spd=_spd
+	_s.col=_col
+	add(stars,_s)
 end
 __gfx__
 00000000003b3000003bb3000003b300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000088888888
