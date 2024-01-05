@@ -30,10 +30,30 @@ A basic shoot'm up, enemies spawns and you need to defeat them, this game is not
 - Enemy life (To make use of wpn.dmg)
 - Enemy firing
 
-
-
 --------
 
-Redoing my game
+Working on hit animation :
 
-I will implement a stage system were enemies will appear on a defined amout of time
+I want to do some particules on bullet touching
+
+- On hit, particules are generated, I ant them to spread evenly (not random ?)
+
+- Particule will have lifetime and their color will change over it (white->yellow->red->purple->grey) until they vanish
+
+- Shrinking white cross at impact ? (to contrast with firing flash circle) 
+
+
+
+Hit = {
+
+    x,
+
+    y,
+
+    prt = {
+
+        ...
+
+    }
+
+}
