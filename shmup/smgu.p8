@@ -101,7 +101,7 @@ function upd_player()
 	--firing logic
 	if(btnp(❎)and
 	p_load==wpn.rate and
-	wpn.mun!=0) then
+(wpn.mun!=0or wpn.mun==-1)) then
 		blt={
 			x=p_x,
 			y=p_y+3,
@@ -115,7 +115,9 @@ function upd_player()
 		}
 		sfx(0)
 		add(p_blt,blt)
-		wpn.mun-=1
+		if(wpn.mun!=-1)then
+			wpn.mun-=1
+		end
 		p_flash=6
 		p_load=0
 	end
@@ -322,10 +324,6 @@ function drw_player()
 		for b in all(p_blt)do
 		 --stop()
 			spr(16, b.x, b.y)
-			print(b.x.." "..b.y,b.x+8,b.y,8)
-			print(b.hbox.x2+b.x.." "
-			..b.hbox.y2+b.y,b.x+8,b.y+8,8)
-			--drw_hb(b)
 		end
 	end
 end
@@ -347,8 +345,10 @@ function drw_gui()
 	rectfill(107,11,107+pct,12,8)
 	
 	--munitions
-	print(wpn.mun.."/"..wpn.i_mun,
+	if(wpn.mun!=-1)then
+		print(wpn.mun.."/"..wpn.i_mun,
 		106,15,9)
+	end
 	--stage
 	print("stage "..stage,2,2,7)
  print(flr(time_left/30),60,2,7)	
@@ -426,8 +426,8 @@ function set_game()
 		spd=4,
 		dmg=1,
 		sp=16,
-		mun=10,
-		i_mun=10,
+		mun=-1,
+		i_mun=-1,
 		}
 	
 --enemy variables--
