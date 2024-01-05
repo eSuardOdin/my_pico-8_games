@@ -46,6 +46,7 @@ function upd_game()
 	upd_player()
 	upd_stage()
 	upd_enemies()
+	upd_hits()
 	upd_stars()
 end
 
@@ -105,6 +106,7 @@ function upd_player()
 		blt={
 			x=p_x,
 			y=p_y+3,
+			last_y=p_y+3,
 			dmg=wpn.dmg,
 			hbox={
 			x1=1,
@@ -125,6 +127,7 @@ function upd_player()
 	--move bullets
 	if(#p_blt!=0) then
 		for b in all(p_blt)do
+			b.last_y=b.y
 			b.y-=wpn.spd
 		end
 	end
@@ -138,17 +141,20 @@ function upd_player()
 		end
 	end
 	
-	--*todo*--
 	--handle touching bullets
-	--*todo*--
 	if#e_table!=0and#p_blt!=0 then
 		for e in all(e_table)do
 		for b in all(p_blt)do
-			--to do--
-			--handle e_pv--
-			--_hit=collide(e,b)
+			
 			if collide(e,b) then
-				--add hits todo--
+				--add hit--
+				_hit={
+					x=b.x+4,
+					y=b.y+4,
+					cross=12, --flash impact
+					prt={}
+				}
+				add(hits,_hit)
 				e.pv-=b.dmg
 				if(e.pv==0)then
 					del(e_table,e)
@@ -156,6 +162,19 @@ function upd_player()
 				del(p_blt,b)
 			end
 		end
+		end
+	end
+end
+
+--update hits--
+function upd_hits()
+	if#hits!=0then
+		for _h in all(hits)do
+			if(_h.cross!=0)then
+				_h.cross-=4
+			else
+				del(hits,_h)														
+			end
 		end
 	end
 end
@@ -306,6 +325,7 @@ function drw_game()
 	drw_player()
 	drw_gui()
 	drw_enemies()
+	drw_hits()
 end
 
 --drawing player
@@ -324,6 +344,22 @@ function drw_player()
 		for b in all(p_blt)do
 		 --stop()
 			spr(16, b.x, b.y)
+		end
+	end
+end
+
+--draw hits--
+function drw_hits()
+	if#hits!=0then
+		for _h in all(hits)do
+			rectfill(_h.x-_h.cross,
+													_h.y-1,
+													_h.x+_h.cross,
+													_h.y,7)
+			rectfill(_h.x-1,
+													_h.y-_h.cross,
+													_h.x,
+													_h.y+_h.cross,7)
 		end
 	end
 end
@@ -396,6 +432,7 @@ function set_game()
 --global--
 	stage=0
 	stars={}
+	hits={}
 	while#stars<80do
 		gen_stars(false)
 	end
