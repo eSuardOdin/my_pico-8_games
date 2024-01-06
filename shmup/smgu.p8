@@ -151,7 +151,7 @@ function upd_player()
 				_hit={
 					x=b.x+4,
 					y=b.y+4,
-					cross=12, --flash impact
+					cross=8, --flash impact
 					prt={}
 				}
 				add(hits,_hit)
@@ -353,10 +353,10 @@ function drw_hits()
 	if#hits!=0then
 		for _h in all(hits)do
 			rectfill(_h.x-_h.cross,
-													_h.y-1,
+													_h.y,
 													_h.x+_h.cross,
 													_h.y,7)
-			rectfill(_h.x-1,
+			rectfill(_h.x,
 													_h.y-_h.cross,
 													_h.x,
 													_h.y+_h.cross,7)
