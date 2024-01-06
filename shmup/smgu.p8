@@ -226,9 +226,7 @@ function upd_enemies()
 		for e in all(e_table)do
 			e.y+=e.spd
 			--anim enemy
-			if e.n_sprite!=0then
-				anim_sprite(e)
-			end
+			anim_sprite(e)
 			--deleting oob enemies
 			if e.y > 134 then
 				del(e_table,e)
@@ -240,7 +238,7 @@ end
 --return new enemy--
 function spawn_e()
 	
-	local e_type=flr(rnd(3))
+	local _type=flr(rnd(3))
 	local i_rate
 	local i_spd
 	local i_sprite
@@ -252,6 +250,7 @@ function spawn_e()
 	_e = {
 		x=8+rnd(110),
 		y=-10-rnd(120),
+		e_type=_type,
 		hbox={
 				x1=1,
 				x2=7,
@@ -259,21 +258,21 @@ function spawn_e()
 				y2=7
 			}
 	}
-	if(e_type==0)then--rookie
+	if(_type==0)then--rookie
 		i_rate=150
 		i_spd=0.5
 		i_sprite=48
 		i_sprite_mod=10
 		i_n_sprite=1
 		i_pv=1
-	elseif(e_type==1)then--med
+	elseif(_type==1)then--med
 		i_rate=120
 		i_spd=0.3
 		i_sprite=50
 		i_sprite_mod=20
 		i_n_sprite=1
 		i_pv=2
-	elseif(e_type==2)then--med+
+	elseif(_type==2)then--med+
 		i_rate=105
 		i_spd=0.4
 		i_sprite=53
@@ -534,8 +533,8 @@ function gen_stars(out)
 		spd=0,
 		col=0,
 	}
-	if _type>5then
-		_spd=2
+	if _type>5.5then
+		_spd=1.8
 		_col=7
 	elseif _type>3then
 		_spd=0.6
@@ -551,11 +550,22 @@ end
 
 --anim sprite
 function anim_sprite(_e)
-	if (frames%_e.sprite_mod==0)then
-		if(_e.sprite==_e.base_sprite+_e.n_sprite)then
-			_e.sprite=_e.base_sprite
+	if(_e.e_type==2)then
+		--following eyes enemy
+		if(p_x>_e.x+4 and _e.y<p_y)then
+			_e.sprite=_e.base_sprite+1
+		elseif p_x<_e.x-4 and _e.y<p_y then
+			_e.sprite=_e.base_sprite-1
 		else
-			_e.sprite+=1
+			_e.sprite=_e.base_sprite
+		end
+	else
+		if (frames%_e.sprite_mod==0)then
+			if(_e.sprite==_e.base_sprite+_e.n_sprite)then
+				_e.sprite=_e.base_sprite
+			else
+				_e.sprite+=1
+			end
 		end
 	end
 end
