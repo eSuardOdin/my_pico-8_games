@@ -151,7 +151,8 @@ function upd_player()
 				_hit={
 					x=b.x+4,
 					y=b.y+4,
-					cross=8, --flash impact
+					rad=0, --flash impact
+					col=7,
 					prt={}
 				}
 				add(hits,_hit)
@@ -170,8 +171,15 @@ end
 function upd_hits()
 	if#hits!=0then
 		for _h in all(hits)do
-			if(_h.cross!=0)then
-				_h.cross-=4
+			if(_h.rad!=16)then
+				_h.rad+=2
+				if _h.rad==4 then
+					_h.col=10
+				elseif _h.rad==8 then
+					_h.col=9
+				elseif _h.rad==12 then
+					_h.col=8
+				end
 			else
 				del(hits,_h)														
 			end
@@ -251,15 +259,15 @@ function spawn_e()
 		i_rate=150
 		i_spd=0.5
 		i_sprite=47
-		i_pv=2
+		i_pv=1
 	elseif(e_type==1)then--med
 		i_rate=120
-		i_spd=0.8
+		i_spd=0.3
 		i_sprite=31
-		i_pv=1
+		i_pv=2
 	elseif(e_type==2)then--med+
 		i_rate=105
-		i_spd=1
+		i_spd=0.4
 		i_sprite=15
 		i_pv=3
 --	else	--hard
@@ -352,14 +360,7 @@ end
 function drw_hits()
 	if#hits!=0then
 		for _h in all(hits)do
-			rectfill(_h.x-_h.cross,
-													_h.y,
-													_h.x+_h.cross,
-													_h.y,7)
-			rectfill(_h.x,
-													_h.y-_h.cross,
-													_h.x,
-													_h.y+_h.cross,7)
+			circ(_h.x+4,_h.y+4,_h.rad,_h.col)
 		end
 	end
 end
@@ -533,6 +534,10 @@ function gen_stars(out)
 	_s.col=_col
 	add(stars,_s)
 end
+-->8
+--enemy functions
+
+
 __gfx__
 00000000003b3000003bb3000003b300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000088888888
 0000000000bbb30003bbbb30003bbb000aa009900550055000000000000000000000000000000000000000000000000000000000000000000000000088088088
