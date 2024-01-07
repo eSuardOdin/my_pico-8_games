@@ -45,6 +45,7 @@ end
 function upd_game()
 	frames+=1
 	upd_player()
+	upd_p_hit()
 	upd_stage()
 	upd_enemies()
 	upd_hits()
@@ -164,6 +165,19 @@ function upd_player()
 				del(p_blt,b)
 			end
 		end
+		end
+	end
+end
+
+--player hit--
+function upd_p_hit()
+	--by enemy
+	if#e_table!=0and p_inv==0then
+		for _e in all(e_table)do
+			if collide(p_hbox, _e) then
+				p_pv-=1
+				p_inv=45
+			end		
 		end
 	end
 end
@@ -498,14 +512,22 @@ end
 
 --check if 2 hitboxes collide--
 function collide(a,b)
-	if(a.hbox.y1+a.y<=b.hbox.y2+b.y
-	 and a.hbox.y2+a.y>=b.hbox.y1+b.y
-	 and a.hbox.x1+a.x<=b.hbox.x2+b.x
-	 and a.hbox.x2+a.x>=b.hbox.x1+b.x)then
-  return true
- else
-  return false
- end
+	if(a.hbox!=nil)then
+		if(a.hbox.y1+a.y<=b.hbox.y2+b.y
+		 and a.hbox.y2+a.y>=b.hbox.y1+b.y
+		 and a.hbox.x1+a.x<=b.hbox.x2+b.x
+		 and a.hbox.x2+a.x>=b.hbox.x1+b.x)then
+	  return true
+	 end
+	else -- player
+	 if(a.y1+p_y<=b.hbox.y2+b.y
+			 and a.y2+p_y>=b.hbox.y1+b.y
+			 and a.x1+p_x<=b.hbox.x2+b.x
+			 and a.x2+p_x>=b.hbox.x1+b.x)then
+			return true
+		end
+	end
+ return false
 end
 
 function drw_hb(e)
