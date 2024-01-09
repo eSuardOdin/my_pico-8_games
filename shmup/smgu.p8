@@ -259,7 +259,10 @@ function upd_enemies()
 			
 			--shooting
 			if(e.load==0)then
+			if(e.y<105 and
+						e.y>5)then
 				e_atk(e,e.atk)
+			end
 				e.load=e.rate
 			else
 				e.load-=1
@@ -471,7 +474,8 @@ function drw_enemies()
 		--local _n = 0
 		for e in all(e_table)do
 			spr(e.sprite,e.x,e.y)
-			--print(e.x.." "..e.y,64,64+_n)
+			print("y: "..e.y,e.x+7,e.y,7)
+			print(e.load,e.x+7,e.y+8,7)
 			--_n+=8
 			--drw_hb(e)
 		end
