@@ -161,6 +161,7 @@ function upd_player()
 				add(hits,_hit)
 				e.pv-=b.dmg
 				if(e.pv==0)then
+					p_score+=e.score
 					del(e_table,e)
 				end
 				del(p_blt,b)
@@ -297,6 +298,7 @@ function spawn_e()
 	local i_anim
 	local i_pv
 	local i_atk
+	local i_score
 	_e = {
 		x=8+rnd(110),
 		y=-10-rnd(120),
@@ -315,6 +317,7 @@ function spawn_e()
 		i_sprite_mod=10
 		i_n_sprite=1
 		i_pv=1
+		i_score=25
 	elseif(_type==1)then--med
 		i_rate=120
 		i_spd=0.3
@@ -322,6 +325,7 @@ function spawn_e()
 		i_sprite_mod=20
 		i_n_sprite=1
 		i_pv=2
+		i_score=33
 	elseif(_type==2)then--med+
 		i_rate=105
 		i_spd=0.4
@@ -330,7 +334,7 @@ function spawn_e()
 		i_n_sprite=0
 		i_sprite_mod=200 -->to change
 		i_atk=2
-		
+		i_score=60
 --	else	--hard
 	end
 	
@@ -347,6 +351,7 @@ function spawn_e()
 	_e.pv=i_pv
 	_e.atk=i_atk
 	_e.type=_type
+	_e.score=i_score
 	--todo : atk as a pointer to function
 	return _e
 end
@@ -481,7 +486,7 @@ function drw_enemies()
 				end
 				--draw loading enemy
 				if(e.load<=5)then
-					spr(41+e.load,e.x+4,e.y+4)
+					spr(41+e.load,e.x+2,e.y+4)
 				end
 			end
 		end
