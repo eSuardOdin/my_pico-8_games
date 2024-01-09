@@ -181,6 +181,15 @@ function upd_p_hit()
 			end		
 		end
 	end
+	--by blt
+	if#e_blt!=0and p_inv==0then
+		for _b in all(e_blt)do
+			if collide(p_hbox,_b)then
+				p_pv-=1
+				p_inv=45
+			end
+		end
+	end
 end
 
 --update hits--
@@ -221,15 +230,15 @@ end
 function upd_enemies()
 	local e_nb
 	if (stage==0)then
-	 e_nb=15
-	elseif(stage==1)then
 	 e_nb=4
-	elseif(stage==2)then
+	elseif(stage==1)then
 	 e_nb=5
+	elseif(stage==2)then
+	 e_nb=7
 	elseif(stage==3)then
-		e_nb=6
+		e_nb=9
 	else 
-		e_nb=8
+		e_nb=12
 	end
 
 	--adding enemies	
@@ -638,6 +647,12 @@ function aim_blt(_e,_spd) --2
 		y=_e.y,
 		spd=_spd,
 		ang=atan2(dirx,diry),
+		hbox={
+			x1=1,
+			x2=7,
+			y1=1,
+			y2=7
+		}
 	}
 	add(e_blt,_b)
 end
