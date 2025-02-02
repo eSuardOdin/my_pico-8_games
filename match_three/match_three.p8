@@ -6,20 +6,36 @@ init_game()
 end
 
 function _update()
-manage_player()
 f+=1
+if status.stable then
+ printh(f.." : input")
+ process_input()
+elseif not status.fallen then
+ printh(f.." : fall")
+ make_fall()
+elseif not status.filled then
+ printh(f.." : fill")
+ refill()
+elseif not status.stable then
+ printh(f.." : match")
+ process_matches()
+end
 end
 
 function _draw()
 draw_board()
 draw_player()
+--draw_stats()
 end
 -->8
 -- init functions
 function init_game()
+q=init_q()
 f=0
 brd=init_brd()
+fil={x=0,y=0}
 p={x=0,y=0,s={sel=false,x=0,y=0}}
+status={stable=true,fallen=true,filled=true}
 t=0
 end
 
@@ -30,7 +46,7 @@ function init_brd()
   for j=1,6 do
    local col
    repeat
-    col=flr(rnd(4))+1
+    col=random_coin()
     until not (
     (j >= 3 and col== board[i][j-1] and col==board[i][j-2]) or
     (i >= 3 and col== board[i-1][j] and col==board[i-2][j]))
@@ -41,7 +57,7 @@ function init_brd()
 end
 -->8
 -- update functions
-function manage_player()
+function process_input()
 if p.s.sel==false then
 	if btnp(⬆️)and p.y>0then
   p.y-=1
@@ -70,97 +86,70 @@ else
  elseif btnp(❎) then
  swap(p.s.x+1,p.s.y+1,p.x+1,p.y+1)
  update_turn()
- proceed_match(p.x,p.y,get_contiguous(p.x,p.y))
- proceed_match(p.s.x,p.s.y,get_contiguous(p.s.x,p.s.y))
  p.s.sel=false 
  end
 end
 end
 
 function update_turn()
-t+=1
+ t+=1
+ --process_matches()
+ status.stable=false
 end
 
-function get_contiguous(x,y)
-local c=brd[x+1][y+1]
-local y_a=1
-local x_a=1
-local x_i=x+1
-local y_i=y+1
-while (x_i!=1and brd[x_i][y+1]==c) do
-  x_i-=1
-  if(brd[x_i][y+1]==c)then
-   x_a+=1
-  else break
+-- apply gravity before filling
+function make_fall()
+if f%2==1 then return end
+ for i=1,6do
+  for j=1,5do
+   if brd[i][j]!=0 and
+      brd[i][j+1]==0 then
+    swap(i,j,i,j+1)
+    return
+   end
   end
+ end
+ status.fallen=true
 end
-x_i=x+1
-while (x_i!=6and brd[x_i][y+1]==c) do
-  x_i+=1
-  if(brd[x_i][y+1]==c)then
-   x_a+=1
-  else break
+
+
+function refill()
+if f%2==1 then return end
+ for i=1,6do
+  for j=1,5do
+   if brd[i][j]==0 then
+    brd[i][j]=random_coin()
+    return
+   end
   end
+ end
+ status.filled=true
 end
-printh('---')
-printh("largeur: " .. x_a)
-while (y_i!=1and brd[x+1][y_i]==c) do
-  y_i-=1
-  if(brd[x+1][y_i]==c)then
-   y_a+=1
-  else break
-  end
-end
-y_i=y+1
-while (y_i!=6and brd[x+1][y_i]==c) do
-  y_i+=1
-  if(brd[x+1][y_i]==c)then
-   y_a+=1
-  else break
-  end
-end
-printh("longueur: " .. y_a)
 
 
-return x_a,y_a
-end
-
-function proceed_match(x,y,x_a,y_a)
-if x_a<3and y_a<3 then return end
-if x_a>=3then
- local i=x+1
- while i!=6and brd[i+1][y+1]==brd[x+1][y+1]do
-  brd[i+1][y+1]=7
-  x_a-=1
-  i+=1
+function process_matches()
+ --local matched=false
+ matches=find_matches()
+ if #matches>0then
+  printh(" matches found:")
+  status.stable=false
+  status.fallen=false
+  status.filled=false
+  for i=1,#matches do
+   printh("in loop "..i)
+   for j=1,#matches[i] do
+    printh("in sub loop "..j)
+    if not matched then
+     matched = true  
+    end
+    printh("  [x:"..matches[i][j][1]..",y:"..matches[i][j][2].."]")
+    brd[matches[i][j][1]][matches[i][j][2]]=0
+    end
+   end
+-- elseif not matched then
+ else
+  status.stable=true
  end
- local i=x+1
- while i!=1and brd[i-1][y+1]==brd[x+1][y+1]do
-  brd[i-1][y+1]=7
-  x_a-=1
-  i-=1
- end
-end
-if y_a>=3then
- local i=y+1
- while i!=6and brd[x+1][i+1]==brd[x+1][y+1]do
-  brd[x+1][i+1]=7
-  y_a-=1
-  i+=1
- end
- local i=y+1
- while i!=1and brd[x+1][i-1]==brd[x+1][y+1]do
-  brd[x+1][i-1]=7
-  y_a-=1
-  i-=1
- end
-end
-brd[x+1][y+1]=7
-y_a-=1
-x_a-=1
-if y_a!=0or x_a!=0 then printh('error')
-end
-
 end
 -->8
 -- draw functions
@@ -184,35 +173,173 @@ end
 
 function draw_player()
 if(p.s.sel)then
- spr(6, p.s.x*10, p.s.y*10)
+ spr(15, p.s.x*10, p.s.y*10)
 end
- spr(5, p.x*10, p.y*10)
+ spr(14, p.x*10, p.y*10)
 end
 
+function draw_stats()
+ local st=""
+ local fa=""
+ local fi=""
+ if status.stable then
+  st="true"
+ else
+  st="false"
+ end
+ if status.fallen then
+  fa ="true"
+ else
+  fa="false"
+ end
+ if status.filled then
+  fi="true"
+ else
+  fi="false"
+ end
+ print("stable: "..st,0,90)
+ print("fallen: "..fa,0,100)
+ print("filled: "..fi,0,110)
+end
 -->8
 -- helper functions
+-- queue
+function init_q()
+local q={}
+q.first=1
+q.last=0
+q.data={}
+return q
+end
+
+function insert(q_, v)
+q_.last+=1
+q_.data[q_.last]=v
+end
+
+function remove(q_)
+ if(q_.first>q_.last)then
+  res=-1
+ else
+  res=q_.data[q_.first]
+  q_.data[q_.first]=nil
+  q_.first+=1
+ end
+return res
+end
+
 function swap(sx,sy,dx,dy)
 box=brd[dx][dy]
 brd[dx][dy]=brd[sx][sy]
 brd[sx][sy]=box
 end
+
+
+function bfs(seen,startx,starty)
+ local i=1
+ -- get elt type
+ insert(q, {startx,starty})
+ --printh(q.data[q.first][1].." "..q.data[q.first][2])
+ local el_t=brd[startx][starty]
+ pos={}
+ 
+ --printh(q.first.." "..q.last)
+ while(q.first<=q.last) do 
+  local current=remove(q)
+  if current then
+   local x,y=current[1],current[2]
+   --printh(x.." "..y)   
+   if(seen[x][y]==false)then
+    seen[x][y]=true
+    pos[i]={x,y}
+    i+=1
+    directions={{1,0},{-1,0},{0,1},{0,-1}}
+    for _, dir in ipairs(directions)do
+     local newx, newy= x+dir[1],y+dir[2]
+     if brd[newx] and brd[newx][newy] and not seen[newx][newy] and brd[newx][newy] == el_t then
+      insert(q,{newx,newy})
+     end
+    end
+   end
+  end
+ end
+ return pos
+end
+
+function find_matches()
+-- seen init
+local seen={}
+for i=1,6do
+ seen[i]={}
+ for j=1,6do
+  seen[i][j]=false
+ end
+end
+-- matches
+local matches={}
+local i=1
+-- iterate through board
+for y=1,6do
+ for x=1,6do
+ -- if !visited check matches
+  if(seen[x][y]==false)then
+   local pos=bfs(seen,x,y)
+   if(#pos>=3)then
+    local filtered_pos=filter_valid(pos)
+    if #filtered_pos>0 then
+     matches[i]=filtered_pos
+     i+=1
+    end
+   end
+  end
+ end
+end
+return matches
+end
+
+
+function filter_valid(m)
+ local filtered={}
+ local x_count={}
+ local y_count={}
+ local i=1
+ for _,p in ipairs(m)do
+  local x,y=p[1],p[2]
+  x_count[x]=(x_count[x] or 0)+1
+  y_count[y]=(y_count[y] or 0)+1
+ end
+
+ for _,p in ipairs(m)do
+  local cur_x,cur_y=p[1],p[2]
+  if  x_count[cur_x]>=3
+   or y_count[cur_y]>=3 then
+   filtered[i]=p
+   i+=1 
+  end
+ end
+ return filtered
+end
+
+function random_coin()
+ return flr(rnd(6))+1
+end
 __gfx__
-000000000011110000bbbb00009999000088880077777777eeeeeeee000000000000000000000000000000000000000000000000000000000000000000000000
-00000000011111100b77bbb0097779900878888070000007e000000e555555550000000000000000000000000000000000000000000000000000000000000000
-0070070011177111b7bb7bbb999997998878888870000007e000000e000000000000000000000000000000000000000000000000000000000000000000000000
-0007700011717111bbbb7bbb999779998878888870000007e000000e555555550000000000000000000000000000000000000000000000000000000000000000
-0007700011117111bbb7bbbb999997998878788870000007e000000e000000000000000000000000000000000000000000000000000000000000000000000000
-0070070011117111bb7bbbbb999997998877778870000007e000000e555555550000000000000000000000000000000000000000000000000000000000000000
-0000000001117110077777b0097779900888788070000007e000000e000000000000000000000000000000000000000000000000000000000000000000000000
-000000000011110000bbbb00009999000088880077777777eeeeeeee555555550000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-000000000011110000bbbb0000999900008888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000011111100bbbbbb009999990088888800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000011111100bbbbbb009999990088888800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000011111100bbbbbb009999990088888800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000011111100bbbbbb009999990088888800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-000000000011110000bbbb0000999900008888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000000000011110000bbbb00009999000088880000cccc0000dddd000000000000000000000000000000000000000000000000000000000077777777eeeeeeee
+00000000011111100bbbbbb009999990088888800cccccc00dddddd05555555500000000000000000000000000000000000000000000000070000007e000000e
+0070070011111111bbbbbbbb9999999988888888ccccccccdddddddd0000000000000000000000000000000000000000000000000000000070000007e000000e
+0007700011111111bbbbbbbb9999999988888888ccccccccdddddddd5555555500000000000000000000000000000000000000000000000070000007e000000e
+0007700011111111bbbbbbbb9999999988888888ccccccccdddddddd0000000000000000000000000000000000000000000000000000000070000007e000000e
+0070070011111111bbbbbbbb9999999988888888ccccccccdddddddd5555555500000000000000000000000000000000000000000000000070000007e000000e
+00000000011111100bbbbbb009999990088888800cccccc00dddddd00000000000000000000000000000000000000000000000000000000070000007e000000e
+000000000011110000bbbb00009999000088880000cccc0000dddd005555555500000000000000000000000000000000000000000000000077777777eeeeeeee
+00000000000000000000000000000000000000000088880000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000000000011110000bbbb0000999900008888000878888000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000011111100bbbbbb009999990088888808878888800000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000011111100bbbbbb009999990088888808878888800000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000011111100bbbbbb009999990088888808878788800000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000011111100bbbbbb009999990088888808877778800000000000000000000000000000000000000000000000000000000000000000000000000000000
+000000000011110000bbbb0000999900008888000888788000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000088880000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000777777770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000700000070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000700000070000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
